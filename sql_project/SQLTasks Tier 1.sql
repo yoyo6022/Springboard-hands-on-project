@@ -64,7 +64,7 @@ CASE WHEN monthlymaintenance < 100 THEN 'cheap'
 FROM Facilities
 
 
-/* Q6: You'd like to get the first AND lASt name of the lASt member(s)
+/* Q6: You'd LIKE to get the first AND lASt name of the lASt member(s)
 who signed up. Try not to use the LIMIT clause fOR your solution. */
 SELECT surname, firstname, joindate
 FROM Members
@@ -81,15 +81,14 @@ ORDER BY joindate DESC
 Include in your output the name of the court, AND the name of the member
 fORmatted AS a single column. Ensure no duplicate data, AND ORDER BY
 the member name. */
-SELECT DISTINCT CONCAT(Members.firstname,  ' ', Members.surname,
-                       ' at ', Facilities.name ) AS active_member
-FROM Members
-JOIN Bookings
-ON Members.memid = Bookings.memid
-JOIN Facilities
-ON Facilities.facid = Bookings.facid
-WHERE Facilities.name like '%Tennis Court%'
-ORDER BY Members.surname
+  SELECT DISTINCT concat(m.surname, ' ', m.firstname, ' at ',  f.name) as membe_rname
+From Members m
+JOIN  Bookings b
+ON m.memid = b.memid
+JOIN Facilities f
+ON b.facid = f.facid
+WHERE f.name LIKE 'Tennis%' AND m.memid <> 0
+ORDER BY concat(m.surname, ' ', m.firstname)
 
 
 
@@ -109,8 +108,8 @@ INNER  JOIN Bookings
 ON Members.memid = Bookings.memid
 INNER JOIN Facilities
 ON Facilities.facid = Bookings.facid
-WHERE Bookings.starttime like '2012-09-14%' AND (Bookings.memid = 0 )  AND (Bookings.slots*Facilities.guestcost > 30)
-OR Bookings.starttime like '2012-09-14%'  AND (Bookings.memid <> 0 )  AND  (Bookings.slots*Facilities.membercost>30)
+WHERE Bookings.starttime LIKE '2012-09-14%' AND (Bookings.memid = 0 )  AND (Bookings.slots*Facilities.guestcost > 30)
+OR Bookings.starttime LIKE '2012-09-14%'  AND (Bookings.memid <> 0 )  AND  (Bookings.slots*Facilities.membercost>30)
 ORDER BY Cost DESC
 
 
@@ -123,7 +122,7 @@ ELSE  Bookings.slots*Facilities.membercost
 END AS Cost
 FROM Members
 INNER JOIN Bookings
-ON Members.memid = Bookings.memid AND Bookings.starttime like '2012-09-14%'
+ON Members.memid = Bookings.memid AND Bookings.starttime LIKE '2012-09-14%'
 INNER JOIN Facilities
 ON Facilities.facid = Bookings.facid)sub
 WHERE sub.Cost > 30
