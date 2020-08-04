@@ -81,7 +81,7 @@ ORDER BY joindate DESC
 Include in your output the name of the court, AND the name of the member
 fORmatted AS a single column. Ensure no duplicate data, AND ORDER BY
 the member name. */
-  SELECT DISTINCT concat(m.surname, ' ', m.firstname, ' at ',  f.name) as membe_rname
+SELECT DISTINCT concat(m.surname, ' ', m.firstname, ' at ',  f.name) as member__fac_name
 From Members m
 JOIN  Bookings b
 ON m.memid = b.memid
