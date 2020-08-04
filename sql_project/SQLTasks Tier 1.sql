@@ -166,22 +166,34 @@ GROUP BY sub.FacName)sub2
 where sub2.total_rev < 1000
 
 /* Q11: Produce a report of members and who recommended them in alphabetic surname,firstname order */
-select  r.surname as mem_surname, r.firstname as mem_firstname, m.surname as rec_surname, m.firstname as rec_fistname
-from Members m
-INNER JOIN Members r
-ON m.memid = r.recommendedby
-Where m.memid != 0
-ORDER BY mem_surname, mem_firstname
+SELECT
+m.surname|| ' '|| m.firstname AS member,
+(SELECT surname||' '||firstname
+FROM Members
+WHERE memid = m.recommendedby) AS recommender
+FROM Members AS m
+WHERE m.memid != 0
+ORDER BY member
 
 
 /* Q12: Find the facilities with their usage by member, but not guests */
-select distinct Facilities.name as FacName, concat(Members.surname, ' ',  Members.firstname) AS MemName
+SELECT Facilities.name AS FacName, SUM(Bookings.slots) AS Fac_usage
+FROM Members
+INNER  JOIN Bookings
+ON Members.memid = Bookings.memid AND Members.memid != 0
+INNER JOIN Facilities
+ON Facilities.facid = Bookings.facid
+GROUP BY Facname
+
+
+/* Q13: Find the facilities usage by month, but not guests */
+SELECT strftime('%m',Bookings.starttime) AS Month,
+Facilities.name AS FacName,
+SUM(Bookings.slots) AS Fac_usage
 FROM Members
 INNER  JOIN Bookings
 ON Members.memid = Bookings.memid and Members.memid != 0
 INNER JOIN Facilities
 ON Facilities.facid = Bookings.facid
-ORDER BY MemName
-
-
-/* Q13: Find the facilities usage by month, but not guests */
+GROUP BY FacName, Month
+ORDER BY Month,Fac_usage DESC
