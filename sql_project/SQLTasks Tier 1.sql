@@ -185,21 +185,18 @@ QUESTIONS:
 /* Q10: Produce a list of facilities with a total revenue less than 1000.
 The output of facility name AND total revenue, sORted BY revenue. Remember
 that there's a different cost fOR guests AND members! */
-SELECT*
+SELECT *
+FROM
+(SELECT fac_name, sum(cost) AS total_revenue
 FROM(
-SELECT sub.FacName, sum(sub.Rev) AS total_rev
-FROM(
-SELECT Facilities.name AS FacName,
-CASE WHEN (Bookings.memid = 0 ) THEN Bookings.slots*Facilities.guestcost
-ELSE  Bookings.slots*Facilities.membercost
-END AS Rev
-  FROM Facilities
- INNER JOIN Bookings
-   ON Facilities.facid = Bookings.facid
-INNER JOIN Members
-ON Bookings.memid = Members.memid)sub
-GROUP BY sub.FacName)sub2
-WHERE sub2.total_rev < 1000
+SELECT f.name AS fac_name,
+CASE WHEN b.memid != 0 THEN b.slots*f.membercost ELSE b.slots*f.guestcost end AS cost
+FROM Bookings b
+JOIN Facilities f
+ON b.facid = f.facid) AS sub
+GROUP BY fac_name) AS sub2
+WHERE total_revenue  < 1000
+ORDER BY total_revenue DESC
 
 /* Q11: Produce a repORt of members AND who recommended them in alphabetic surname,firstname ORDER */
 SELECT
