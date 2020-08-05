@@ -99,18 +99,33 @@ different costs to members (the listed costs are per half-hour 'slot'), AND
 the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member fORmatted AS a single column, AND the cost.
 ORDER BY DESCending cost, AND do not use any subqueries. */
-SELECT Facilities.name, concat(Members.firstname, ' ',  Members.surname) AS MemName,
-CASE WHEN (Bookings.memid = 0 ) THEN Bookings.slots*Facilities.guestcost
-ELSE  Bookings.slots*Facilities.membercost
-END AS Cost
-FROM Members
-INNER  JOIN Bookings
-ON Members.memid = Bookings.memid
-INNER JOIN Facilities
-ON Facilities.facid = Bookings.facid
-WHERE Bookings.starttime LIKE '2012-09-14%' AND (Bookings.memid = 0 )  AND (Bookings.slots*Facilities.guestcost > 30)
-OR Bookings.starttime LIKE '2012-09-14%'  AND (Bookings.memid <> 0 )  AND  (Bookings.slots*Facilities.membercost>30)
-ORDER BY Cost DESC
+SELECT f.name AS fac_name, concat(m.surname, ' ', m.firstname) AS member_name,
+CASE WHEN b.memid != 0 THEN b.slots*f.membercost
+ELSE b.slots*f.guestcost END AS cost
+FROM Bookings b
+JOIN Members m
+ON b.memid = m.memid
+JOIN Facilities f
+ON b.facid = f.facid
+WHERE b.starttime LIKE '2012-09-14%' AND b.memid != 0 AND b.slots*f.membercost > 30
+OR b.starttime LIKE '2012-09-14%' AND b.memid = 0 AND b.slots*f.guestcost > 30
+ORDER BY cost DESC
+
+-- or
+
+SELECT f.name AS fac_name, concat(m.surname, ' ', m.firstname) AS member_name,
+CASE WHEN b.memid != 0 THEN b.slots*f.membercost
+ELSE b.slots*f.guestcost END AS cost
+FROM Bookings b
+JOIN Members m
+ON b.memid = m.memid
+JOIN Facilities f
+ON b.facid = f.facid
+WHERE b.starttime LIKE '2012-09-14%'
+AND
+CASE WHEN b.memid != 0 THEN b.slots*f.membercost
+ELSE  b.slots*f.guestcost  END > 30
+ORDER BY cost DESC
 
 
 /* Q9: This time, produce the same result AS in Q8, but using a subquery. */
@@ -130,6 +145,26 @@ AND (
     END AS cost
        ) > 30
 ORDER BY cost DESC
+
+-- or
+SELECT fac_name, member_name, cost
+FROM
+(
+SELECT f.name AS fac_name,
+CONCAT(m.surname, ' ', m.firstname) AS member_name,
+CASE WHEN b.memid != 0 THEN b.slots*f.membercost
+ELSE b.slots*f.guestcost END AS cost
+FROM Bookings b
+JOIN Members m
+ON b.memid = m.memid
+JOIN Facilities f
+ON b.facid = f.facid
+WHERE b.starttime LIKE '2012-09-14%'
+) AS booking
+
+WHERE cost > 30
+ORDER BY cost DESC
+
 
 /* PART 2: SQLite
 /* We now want you to jump over to a local instance of the databASe on your machine.
