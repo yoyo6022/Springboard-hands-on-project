@@ -210,23 +210,19 @@ ORDER BY member
 
 
 /* Q12: Find the facilities with their usage BY member, but not guests */
-SELECT Facilities.name AS FacName, SUM(Bookings.slots) AS Fac_usage
-FROM Members
-INNER  JOIN Bookings
-ON Members.memid = Bookings.memid AND Members.memid != 0
-INNER JOIN Facilities
-ON Facilities.facid = Bookings.facid
-GROUP BY Facname
+SELECT f.name AS fac_name, sum(b.slots) AS fac_usage
+FROM Facilities f
+JOIN Bookings b
+ON b.facid = f.facid
+WHERE b.memid != 0
+GROUP BY f.name
 
 
 /* Q13: Find the facilities usage BY month, but not guests */
-SELECT strftime('%m',Bookings.starttime) AS Month,
-Facilities.name AS FacName,
-SUM(Bookings.slots) AS Fac_usage
-FROM Members
-INNER JOIN Bookings
-ON Members.memid = Bookings.memid AND Members.memid != 0
-INNER JOIN Facilities
-ON Facilities.facid = Bookings.facid
-GROUP BY FacName, Month
-ORDER BY Month,Fac_usage DESC
+SELECT f.name AS name,  strftime('%m',b.starttime) AS month,  sum(b.slots) AS fac_usage
+FROM Facilities f
+JOIN Bookings b
+ON f.facid=b.facid
+WHERE b.memid != 0
+GROUP BY month,name
+ORDER BY month, fac_usage DESC
